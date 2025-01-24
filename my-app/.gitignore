@@ -23,7 +23,3 @@ dist-ssr
 *.sln
 *.sw?
 
-#Large files
-my-app/All_Beauty.jsonl
-my-app/meta_All_Beauty.jsonl
-
