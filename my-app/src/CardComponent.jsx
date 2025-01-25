@@ -5,8 +5,6 @@ import axios from "axios";
 import { ReviewContext } from "./ReviewContext";
 import EmotionChartPopup from "./EmotionChartPopup";
 
-const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#ff4040"]; // Define chart colors
-
 // Function to generate random letter
 const getRandomLetter = () => {
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -21,7 +19,7 @@ const getRandomColor = () => {
   
 
 export default function BeautyProductReviewCards() {
-  const { products, setProducts, reviews, setReviews, predictionValue, setPredictionValue } = useContext(ReviewContext);
+  const { reviews, setReviews, predictionValue, setPredictionValue, isReviewSubmitted, setIsReviewSubmitted } = useContext(ReviewContext);
   const [popupIndex, setPopupIndex] = useState(null);
   const [avatarData, setAvatarData] = useState({});
 
@@ -67,43 +65,36 @@ export default function BeautyProductReviewCards() {
     }));
   };
 
-  useEffect(() => {
+  useEffect((isReviewSubmitted) => {
     // Fetch products and reviews
-    const fetchProducts = axios.get("http://localhost:5000/api/products");
-    const fetchReviews = axios.get("http://localhost:5001/api/reviews");
-
-    Promise.all([fetchProducts, fetchReviews])
-      .then(([productsResponse, reviewsResponse]) => {
-        setProducts(productsResponse.data); // Set products
-        setReviews(reviewsResponse.data); // Set reviews
-        reviewsResponse.data.map((item, index)=>{
-            fetchGibberishPrediction(item.text, index);
-            loadAvatarData(index);
-        })
+    axios
+    .get("http://localhost:5003/api/reviews")
+    .then((reviewsResponse) => {
+      setReviews(reviewsResponse.data); // Set reviews
+      reviewsResponse.data.map((item, index)=>{
+          fetchGibberishPrediction(item.text, index);
+          loadAvatarData(index);
       })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }, []);
+    })
+    .catch((error) => {
+      console.error("Error fetching data:", error);
+    })
+    .finally(() => {
+      setIsReviewSubmitted(false);
+    });
+  }, [isReviewSubmitted]);
 
   // If no products or reviews are loaded yet, return a loading state
-  if (products.length === 0 || reviews.length === 0) {
-    return <div>Loading...</div>;
+  if(reviews.length === 0){
+    return <div>No Data to Display</div>
   }
-
-  const combinedData = products.map((product, index) => ({
-    ...product,
-    review: reviews[index]?.text || "No review available", // Match review text or fallback
-    rating: reviews[index]?.rating || 0, // Match review rating or fallback to 0
-  }));
   
 
   return (
     <Grid2 container spacing={2} justifyContent="center">
-      {/* Iterate over combined data and display a Card for each */}
-      {combinedData.map((item, index) => (
+      {reviews.map((item, index) => (
         <Grid2 item key={index} xs={12} sm={6} md={4}>
-          <Card sx={{ maxWidth: 345 }} onClick={() => handleOpenPopup(index)}>
+          <Card sx={{ maxWidth: 345, borderRadius: "8px" }} onClick={() => handleOpenPopup(index)}>
           <CardHeader
               avatar={
                 avatarData[index] && ( // Ensure data is available for the index
@@ -143,7 +134,7 @@ export default function BeautyProductReviewCards() {
                 minHeight: "4.5em", // Approximate height for 3 lines of text
                 }}
             >
-                {item.review || "No description available"}
+                {item.text || "No description available"}
             </Typography>
 
             {/* Display the rating */}

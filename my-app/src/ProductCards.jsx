@@ -1,19 +1,35 @@
-import React, { useContext, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import {Card,CardMedia,CardContent,CardActions,Button,Typography,Rating,Grid2,Modal,Box,Slider,TextField} from "@mui/material";
 import { ReviewContext } from "./ReviewContext"; // Import ReviewContext
+import axios from "axios";
 
 const ProductGrid = () => {
-  const { products } = useContext(ReviewContext); // Access products from the ReviewContext
-  const [buyClicked, setBuyClicked] = useState({}); // Track buy button states
-  const [reviewPopup, setReviewPopup] = useState(false); // Track the currently open popup
+  const { products, setProducts, setIsReviewSubmitted, buyClicked, setBuyClicked } = useContext(ReviewContext); // Access products from the ReviewContext
+  const [reviewPopup, setReviewPopup] = useState(null); // Track the currently open popup
   const [reviewData, setReviewData] = useState({}); // Track review inputs
+
+  useEffect(() => {
+    localStorage.setItem("buyClicked", JSON.stringify(buyClicked));
+  }, [buyClicked]);  
+
+  useEffect(() => {
+    // Fetch products and reviews
+    axios
+      .get("http://localhost:5000/api/products")
+      .then((response) => {
+        setProducts(response.data); // Set products
+      })
+      .catch((error) => {
+        console.error("Error fetching data:", error);
+      });
+  }, []);
 
   const handleBuyNow = (productId) => {
     setBuyClicked((prev) => ({ ...prev, [productId]: true }));
   };
 
   const handleOpenReview = (productId) => {
-    setReviewPopup(true);
+    setReviewPopup(productId);
     setReviewData((prev) => ({
       ...prev,
       [productId]: reviewData[productId] || { rating: 0, text: "" },
@@ -21,27 +37,92 @@ const ProductGrid = () => {
   };
 
   const handleCloseReview = () => {
-    setReviewPopup(false);
+    setReviewPopup(null);
   };
 
-  const handleReviewChange = (index, field, value) => {
+  const handleReviewChange = (productId, field, value) => {
     setReviewData((prev) => ({
       ...prev,
-      [index]: {
-        ...prev[index],
+      [productId]: {
+        ...prev[productId],
         [field]: value,
       },
     }));
   };
 
-  const handleSubmitReview = () => {
-    console.log("Submitted review:", reviewData[reviewPopup]);
-    // Reset review for the current product
-    setReviewData((prev) => ({
-      ...prev,
-      [reviewPopup]: { rating: null, text: "" },
-    }));
-    handleCloseReview();
+  const handleSubmitReview = async () => {
+    const review = reviewData[reviewPopup]; // Get the current review data
+    const prod = products.find((product) => product.parent_asin === reviewPopup);
+    if (!review || !reviewPopup) {
+      console.error("Invalid review data");
+      return;
+    }
+  
+    try {
+      // Check if the review already exists in the database
+      const response = await fetch(`http://localhost:5003/api/reviews/${reviewPopup}`);
+  
+      if (response.ok) {
+        const existingReview = await response.json();
+  
+        if (existingReview) {
+          // If review exists, update it
+          const updateResponse = await fetch(`http://localhost:5003/api/reviews/${reviewPopup}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              rating: review.rating,
+              title: prod.title,
+              text: review.text,
+              images: prod.images,
+              parent_asin: reviewPopup,
+            }),
+          });
+  
+          if (!updateResponse.ok) {
+            throw new Error("Failed to update the review.");
+          }
+  
+          console.log("Review updated successfully:", review);
+        }
+      } else if (response.status === 404) {
+        // If review does not exist, create a new one
+        const createResponse = await fetch(`http://localhost:5003/api/reviews`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+              rating: review.rating,
+              title: prod.title,
+              text: review.text,
+              images: prod.images,
+              parent_asin: reviewPopup,
+          }),
+        });
+  
+        if (!createResponse.ok) {
+          throw new Error("Failed to create the review.");
+        }
+  
+        console.log("Review created successfully:", review);
+      } else {
+        throw new Error("Failed to fetch review data.");
+      }
+  
+      // Reset review for the current product
+      setReviewData((prev) => ({
+        ...prev,
+        [reviewPopup]: { rating: null, text: "" },
+      }));
+      setIsReviewSubmitted(true);
+  
+      handleCloseReview();
+    } catch (error) {
+      console.error("Error submitting review:", error);
+    }
   };
 
   if (!products.length) {
@@ -93,7 +174,7 @@ const ProductGrid = () => {
 
             {/* Card Actions */}
             <CardActions sx={{ justifyContent: "center", paddingBottom: "16px" }}>
-              {buyClicked[index] ? (
+              {buyClicked[product.parent_asin] ? (
                 <>
                   <Button
                     variant="contained"
@@ -108,7 +189,7 @@ const ProductGrid = () => {
                   </Button>
                   <Button
                     variant="outlined"
-                    onClick={() => handleOpenReview(index)}
+                    onClick={() => handleOpenReview(product.parent_asin)}
                     sx={{ textTransform: "capitalize" }}
                   >
                     Review
@@ -120,7 +201,7 @@ const ProductGrid = () => {
                   color="primary"
                   size="large"
                   sx={{ borderRadius: "24px", textTransform: "capitalize" }}
-                  onClick={() => handleBuyNow(index)}
+                  onClick={() => handleBuyNow(product.parent_asin)}
                 >
                   Buy Now
                 </Button>

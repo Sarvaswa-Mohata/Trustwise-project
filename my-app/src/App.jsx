@@ -1,17 +1,18 @@
-import './App.css'
-import BeautyProductReviewCards from './CardComponent.jsx'
-import EmotionChartPopup from './EmotionChartPopup.jsx'
-import ProductGrid from './ProductCards.jsx'
-function App() {
+import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import BeautyProductReviewCards from './CardComponent.jsx';
+import ProductGrid from './ProductCards.jsx';
 
+function App() {
   return (
-    <>
-    {/* <EmotionChartPopup reviewText={"Hey there, hope you had a good day!"} /> */}
-    {/* <ProductGrid/>
-    <BeautyProductReviewCards/> */}
-    
-    </>
-  )
+    <Router>
+      <Routes>
+        <Route path="/user" element={<ProductGrid />} />
+        <Route path="/admin" element={<BeautyProductReviewCards />} />
+        <Route path="*" element={<h1>404: Page Not Found</h1>} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
