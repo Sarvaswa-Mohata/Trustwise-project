@@ -134,7 +134,7 @@ const ProductGrid = () => {
       {/* Iterate over products and display a Card for each */}
       {products.map((product, index) => (
         <Grid2 item key={index} xs={12} sm={6} md={4}>
-          <Card sx={{ maxWidth: 345, borderRadius: "8px" }}>
+          <Card sx={{ maxWidth: 345, borderRadius: "8px", backgroundColor: "#EFDBD4" }}>
             {/* Enlarged image */}
             <CardMedia
               component="img"
@@ -146,10 +146,8 @@ const ProductGrid = () => {
             {/* Card Content */}
             <CardContent>
               {/* Display the product title */}
-              <Typography
-                variant="h6"
+              <Typography gutterBottom variant="h6" component="div" fontFamily={"Roboto"}
                 sx={{
-                  fontWeight: "bold",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
                   display: "-webkit-box",
@@ -168,6 +166,14 @@ const ProductGrid = () => {
                   value={product.average_rating || 0} // Use the rating value
                   precision={0.5} // Allows for fractional ratings
                   readOnly // Makes the stars non-interactive
+                  sx={{
+                    "& .MuiRating-iconFilled": {
+                      color: "#D2A185", // Color of the filled stars
+                    },
+                    "& .MuiRating-iconEmpty": {
+                      color: "#E0CFC3", // Color of the empty stars
+                    },
+                  }}
                 />
               </div>
             </CardContent>
@@ -179,7 +185,7 @@ const ProductGrid = () => {
                   <Button
                     variant="contained"
                     sx={{
-                      backgroundColor: "#FF9900", // Amazon-style yellow-orange
+                      backgroundColor: "#774C3D", // Amazon-style yellow-orange
                       color: "white",
                       marginRight: "8px",
                       textTransform: "capitalize",
@@ -190,7 +196,7 @@ const ProductGrid = () => {
                   <Button
                     variant="outlined"
                     onClick={() => handleOpenReview(product.parent_asin)}
-                    sx={{ textTransform: "capitalize" }}
+                    sx={{ textTransform: "capitalize", color: "#774C3D", borderColor: "#774C3D" }}
                   >
                     Review
                   </Button>
@@ -198,9 +204,9 @@ const ProductGrid = () => {
               ) : (
                 <Button
                   variant="contained"
-                  color="primary"
-                  size="large"
-                  sx={{ borderRadius: "24px", textTransform: "capitalize" }}
+                  color="#D2C0AF"
+                  size="medium"
+                  sx={{ borderRadius: "24px", textTransform: "capitalize", backgroundColor: "#D59470", color: "#fff" }}
                   onClick={() => handleBuyNow(product.parent_asin)}
                 >
                   Buy Now
@@ -225,7 +231,7 @@ const ProductGrid = () => {
             left: "50%",
             transform: "translate(-50%, -50%)",
             width: 400,
-            bgcolor: "background.paper",
+            bgcolor: "#EFDBD4",
             border: "2px solid #000",
             boxShadow: 24,
             p: 4,
@@ -244,7 +250,15 @@ const ProductGrid = () => {
             onChange={(e, newValue) =>
               handleReviewChange(reviewPopup, "rating", newValue)
             }
-            sx={{ mt: 2 }}
+            sx={{
+              "& .MuiRating-iconFilled": {
+                color: "#D2A185", // Color of the filled stars
+              },
+              "& .MuiRating-iconEmpty": {
+                color: "#E0CFC3", // Color of the empty stars
+              },
+            }}
+
           />
 
           {/* Text Input */}
@@ -262,10 +276,10 @@ const ProductGrid = () => {
 
           {/* Buttons */}
           <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
-            <Button variant="contained" color="secondary" onClick={handleCloseReview}>
+            <Button variant="contained" sx={{backgroundColor:"#D59470"}} onClick={handleCloseReview}>
               Close
             </Button>
-            <Button variant="contained" color="primary" onClick={handleSubmitReview}>
+            <Button variant="contained" sx={{backgroundColor:"#774C3D"}} onClick={handleSubmitReview}>
               Submit
             </Button>
           </Box>

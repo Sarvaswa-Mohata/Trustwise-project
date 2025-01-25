@@ -2,14 +2,15 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BeautyProductReviewCards from './CardComponent.jsx';
 import ProductGrid from './ProductCards.jsx';
+import NashvilleLandingPage from './NashvilleLangingPage.jsx';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/user" element={<ProductGrid />} />
         <Route path="/admin" element={<BeautyProductReviewCards />} />
         <Route path="*" element={<h1>404: Page Not Found</h1>} />
+        <Route path="/" element={<NashvilleLandingPage />} />
       </Routes>
     </Router>
   );
