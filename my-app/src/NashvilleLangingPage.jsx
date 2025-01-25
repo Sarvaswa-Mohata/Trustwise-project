@@ -2,22 +2,74 @@ import React from "react";
 import { Container, Grid2, Typography, Card, CardContent, Button, TextField, Rating} from "@mui/material";
 import { motion } from "framer-motion";
 import ProductGrid from "./ProductCards";
+import './NashvilleLandingPage.css'
 
 export default function NashvilleLandingPage() {
 
   return (
     <div style={{ backgroundColor: "#f9f4f1", color: "#774c3d" }}>
       {/* Navbar section*/}
-      <nav style={{ padding: "16px 32px", backgroundColor: "#f5e9e4", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <Typography variant="h6" fontWeight="bold"  fontFamily={"Lato"}>Nashville</Typography>
-        <Typography style={{ display: "flex", gap: "32px" }} fontFamily={"Lato"} fontWeight={400}>
-          <Typography>Home</Typography>
-          <Typography>About Us</Typography>
-          <Typography>Our Customers</Typography>
-          <Typography>Contact Us</Typography>
-          <Typography>Products</Typography>
+      <nav
+        style={{
+          padding: "16px 32px",
+          backgroundColor: "#f5e9e4",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Typography
+          variant="h6"
+          fontWeight="bold"
+          fontFamily="Lato"
+          style={{ cursor: "pointer" }}
+          onClick={() => document.getElementById("home").scrollIntoView({ behavior: "smooth" })}
+        >
+          Nashville
         </Typography>
+        <div style={{ display: "flex", gap: "32px", fontFamily: "Lato", fontWeight: 400 }}>
+          {[
+            { label: "Home", id: "home" },
+            { label: "About Us", id: "about-us" },
+            { label: "Our Products", id: "products" },
+            { label: "Our Customers", id: "our-customers" },
+            { label: "Contact Us", id: "contact-us" },
+          ].map((item) => (
+            <Typography
+              key={item.id}
+              style={{
+                position: "relative",
+                cursor: "pointer",
+                transition: "color 0.3s ease",
+              }}
+              onClick={() => document.getElementById(item.id).scrollIntoView({ behavior: "smooth" })}
+              onMouseEnter={(e) => {
+                e.target.style.borderBottom = "2px solid #764429";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.borderBottom = "none"; 
+              }}
+            >
+              {item.label}
+              <span
+                style={{
+                  position: "absolute",
+                  bottom: "-4px",
+                  left: 0,
+                  width: "100%",
+                  height: "2px",
+                  backgroundColor: "#774C3D",
+                  transform: "scaleX(0)",
+                  transformOrigin: "center",
+                  transition: "transform 0.3s ease",
+                }}
+                className="underline"
+              />
+            </Typography>
+          ))}
+        </div>
       </nav>
+
       {/*Header section*/}
       <section id="header"
         style={{
