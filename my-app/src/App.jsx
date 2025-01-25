@@ -7,8 +7,9 @@ function App() {
   return (
     <>
     {/* <EmotionChartPopup reviewText={"Hey there, hope you had a good day!"} /> */}
-    <ProductGrid/>
-    <BeautyProductReviewCards/>
+    {/* <ProductGrid/>
+    <BeautyProductReviewCards/> */}
+    
     </>
   )
 }
