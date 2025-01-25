@@ -1,8 +1,11 @@
-import React, { useEffect, useContext } from "react";
-import { Card, CardHeader, CardMedia, CardContent, Avatar, Typography, IconButton, CardActions, Grid2, Rating, LinearProgress } from "@mui/material";
+import React, { useEffect, useContext, useState } from "react";
+import { Modal, Button, Box, Card, CardHeader, CardMedia, CardContent, Avatar, Typography, IconButton, CardActions, Grid2, Rating, LinearProgress } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
 import { ReviewContext } from "./ReviewContext";
+import EmotionChartPopup from "./EmotionChartPopup";
+
+const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#ff4040"]; // Define chart colors
 
 // Function to generate random letter
 const getRandomLetter = () => {
@@ -19,6 +22,16 @@ const getRandomColor = () => {
 
 export default function BeautyProductReviewCards() {
   const { products, setProducts, reviews, setReviews, predictionValue, setPredictionValue } = useContext(ReviewContext);
+  const [popupIndex, setPopupIndex] = useState(null);
+  const [avatarData, setAvatarData] = useState({});
+
+  const handleOpenPopup = (index) => {
+    setPopupIndex(index);
+  };
+
+  const handleClosePopup = () => {
+    setPopupIndex(null);
+  };
 
   const fetchGibberishPrediction = async (text, index) => {
     try {
@@ -44,6 +57,16 @@ export default function BeautyProductReviewCards() {
     }
   };
 
+  const loadAvatarData = (index) => {
+    setAvatarData((prevData) => ({
+      ...prevData,
+      [index]: {
+        letter: getRandomLetter(), // Generate a random letter
+        color: getRandomColor(), // Generate a random color
+      },
+    }));
+  };
+
   useEffect(() => {
     // Fetch products and reviews
     const fetchProducts = axios.get("http://localhost:5000/api/products");
@@ -55,6 +78,7 @@ export default function BeautyProductReviewCards() {
         setReviews(reviewsResponse.data); // Set reviews
         reviewsResponse.data.map((item, index)=>{
             fetchGibberishPrediction(item.text, index);
+            loadAvatarData(index);
         })
       })
       .catch((error) => {
@@ -73,19 +97,23 @@ export default function BeautyProductReviewCards() {
     rating: reviews[index]?.rating || 0, // Match review rating or fallback to 0
   }));
   
-  
 
   return (
     <Grid2 container spacing={2} justifyContent="center">
       {/* Iterate over combined data and display a Card for each */}
       {combinedData.map((item, index) => (
         <Grid2 item key={index} xs={12} sm={6} md={4}>
-          <Card sx={{ maxWidth: 345 }}>
-            <CardHeader
+          <Card sx={{ maxWidth: 345 }} onClick={() => handleOpenPopup(index)}>
+          <CardHeader
               avatar={
-                <Avatar sx={{ bgcolor: getRandomColor() }} aria-label="recipe">
-                  {getRandomLetter()} {/* Random letter */}
-                </Avatar>
+                avatarData[index] && ( // Ensure data is available for the index
+                  <Avatar
+                    sx={{ bgcolor: avatarData[index].color }}
+                    aria-label="recipe"
+                  >
+                    {avatarData[index].letter}
+                  </Avatar>
+                )
               }
               action={
                 <IconButton aria-label="settings">
@@ -145,14 +173,55 @@ export default function BeautyProductReviewCards() {
                 />
             </div>
             </CardContent>
-
-
             <CardActions disableSpacing>
               {/* Add actions if needed */}
             </CardActions>
           </Card>
         </Grid2>
       ))}
+      {/* Popup for review text */}
+      <Modal
+        open={popupIndex}
+        onClose={handleClosePopup}
+        aria-labelledby="review-popup-title"
+        aria-describedby="review-popup-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 550,
+            bgcolor: "background.paper",
+            border: "2px solid #000",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+          }}
+        >
+          <Typography id="review-popup-title" variant="h6">
+            Review Text
+          </Typography>
+          <Typography id="review-popup-description" sx={{ mt: 2 }}>
+            {popupIndex !== null ? (
+              reviews[popupIndex].text,
+              <EmotionChartPopup reviewText={reviews[popupIndex].text} />
+            ) : (
+              "Loading..."
+            )}
+          </Typography>
+          <Box sx={{ mt: 3, textAlign: "right" }}>
+            <Button
+              variant="contained"
+              color="secondary"
+              onClick={handleClosePopup}
+            >
+              Close
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Grid2>
   );
 }

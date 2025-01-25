@@ -45,12 +45,21 @@ const Product = mongoose.model("Product", productSchema, "prod_desc"); // Explic
 const app = express();
 const port = 5000;
 
+const allowedOrigins = [
+  "http://localhost:3001",
+  "http://localhost:5173",
+];
+
 // Middleware to parse JSON data
 app.use(cors({
-    origin: 'http://localhost:5173', // Allow only this origin
-    // or
-    // origin: true, // Allow any origin (less secure, use with caution)
-    // origin: '*', // Allow any origin (less secure, use with caution)
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (e.g., mobile apps, curl)
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed methods
     allowedHeaders: ['Content-Type', 'Authorization'], // Specify allowed headers
 }));
