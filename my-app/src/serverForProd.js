@@ -69,7 +69,7 @@ app.use(express.json());
 app.get("/api/products", async (req, res) => {
   try {
     // Fetch all products
-    const products = await Product.find().limit(10); 
+    const products = await Product.find().limit(20); 
     res.json(products); // Send the product data as a response
   } catch (err) {
     console.error("Error fetching products:", err);

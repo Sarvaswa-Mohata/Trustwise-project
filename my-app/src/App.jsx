@@ -1,7 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import BeautyProductReviewCards from './CardComponent.jsx';
-import ProductGrid from './ProductCards.jsx';
 import NashvilleLandingPage from './NashvilleLangingPage.jsx';
 
 function App() {

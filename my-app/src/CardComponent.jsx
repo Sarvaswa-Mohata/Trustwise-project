@@ -1,5 +1,5 @@
 import React, { useEffect, useContext, useState } from "react";
-import { Modal, Button, Box, Card, CardHeader, CardMedia, CardContent, Avatar, Typography, IconButton, CardActions, Grid2, Rating, LinearProgress } from "@mui/material";
+import { Modal, Button, Box, Card, CardHeader, CardMedia, CardContent, Avatar, Typography, IconButton, CardActions, Grid2, Rating, LinearProgress, Slider } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import axios from "axios";
 import { ReviewContext } from "./ReviewContext";
@@ -45,10 +45,10 @@ export default function BeautyProductReviewCards() {
   
       const result = await response.json();
       const prediction = result.probabilities[0][0];
-      setPredictionValue((prevValue)=>({
+      setPredictionValue((prevValue) => ({
         ...prevValue,
-        [index]:prediction*100, // Set the prediction value
-      }))
+        [index]: (1 / (1 + Math.exp(-prediction))) * 100, // Set the prediction value and multiply by 100
+      }));      
     }
      catch (error) {
       console.error('Error fetching prediction:', error);
@@ -88,14 +88,47 @@ export default function BeautyProductReviewCards() {
   if(reviews.length === 0){
     return <div>No Data to Display</div>
   }
-  
 
   return (
+    <div
+      style={{
+        padding: "32px",
+        backgroundColor: "#f5e9e4",
+        minHeight: "100vh",
+      }}
+    >
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        style={{
+          marginBottom: "24px",
+          color: "#774C3D",
+          fontFamily: 'Playfair Display, serif',
+        }}
+      >
+        Customer Reviews
+      </Typography>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: "24px",
+        }}
+      ></div>
     <Grid2 container spacing={2} justifyContent="center">
       {reviews.map((item, index) => (
         <Grid2 item key={index} xs={12} sm={6} md={4}>
-          <Card sx={{ maxWidth: 345, borderRadius: "8px" }} onClick={() => handleOpenPopup(index)}>
-          <CardHeader
+          <Card sx={{
+              backgroundColor: "#ffffff",
+              borderRadius: "16px",
+              boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+              maxWidth: 345,
+              minWidth: 345,
+            }} 
+            onClick={() => handleOpenPopup(index)}
+          >
+          <CardHeader 
               avatar={
                 avatarData[index] && ( // Ensure data is available for the index
                   <Avatar
@@ -111,21 +144,23 @@ export default function BeautyProductReviewCards() {
                   <MoreVertIcon />
                 </IconButton>
               }
-              title={item.title.split(" ").slice(0, 4).join(" ")} // Take top 4 words of the title
-              subheader={new Date().toLocaleDateString()} // Use current date for subheader
+              title={<Typography fontWeight={"normal"} style={{ color: "#774C3D" }}>{item.title.split(" ").slice(0, 4).join(" ")}</Typography>} // Take top 4 words of the title
+              subheader={<Typography variant="body2" style={{ color: "#8a6b5d" }}>{new Date().toLocaleDateString()}</Typography>} // Use current date for subheader
             />
             <CardMedia
               component="img"
               height="194"
               image={item.images[0]?.large} // Use the first image URL from the images array
               alt={item.title}
+              style={{ objectFit: "cover" }}
             />
             <CardContent>
             {/* Display the product review text */}
             <Typography
-                variant="body2"
+                variant="body1"
                 sx={{
-                color: "text.secondary",
+                color: "#8a6b5d",
+                marginBottom: "8px",
                 display: "-webkit-box",
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
@@ -138,29 +173,42 @@ export default function BeautyProductReviewCards() {
             </Typography>
 
             {/* Display the rating */}
-            <div style={{ marginTop: "8px", display: "flex", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Typography variant="body2" style={{ color: "#8a6b5d" }}>
+                  Rating:
+                </Typography>
                 <Rating
-                name="product-rating"
-                value={item.rating || 0} // Use the rating value from reviews
-                precision={0.5} // Allows for fractional ratings
-                readOnly // Makes the stars non-interactive
+                  sx={{
+                    "& .MuiRating-iconFilled": {
+                      color: "#D2A185", // Color of the filled stars
+                    },
+                    "& .MuiRating-iconEmpty": {
+                      color: "#E0CFC3", // Color of the empty stars
+                    },
+                  }}
+                  name="product-rating"
+                  value={item.rating || 0} // Use the rating value from reviews
+                  precision={0.5} // Allows for fractional ratings
+                  readOnly // Makes the stars non-interactive
                 />
-            </div>
+              </div>
 
             {/* Battery-style progress bar */}
             <div style={{ marginTop: "12px" }}>
                 <Typography variant="body2" color="textSecondary">
-                Prediction Confidence
+                Gibberish Prediction :
                 </Typography>
                 <LinearProgress
-                variant="determinate"
-                value={predictionValue[index] || 0} // Show the prediction value as the progress
-                sx={{
-                    height: 10,
-                    borderRadius: 5,
-                    marginTop: "8px",
-                    backgroundColor: "#e0e0e0", // Light background color
-                }}
+                  variant="determinate"
+                  value={predictionValue[index] || 0} // Show the prediction value as the progress
+                  sx={{
+                    '& .MuiLinearProgress-bar': {
+                      backgroundColor: '#D2A185', // Customize the progress bar color
+                    },
+                    '& .MuiLinearProgress-background': {
+                      backgroundColor: '#FFFFFF', // Background color of the bar (behind the progress)
+                    },
+                  }}
                 />
             </div>
             </CardContent>
@@ -205,7 +253,7 @@ export default function BeautyProductReviewCards() {
           <Box sx={{ mt: 3, textAlign: "right" }}>
             <Button
               variant="contained"
-              color="secondary"
+              sx={{backgroundColor:"#774C3D"}}
               onClick={handleClosePopup}
             >
               Close
@@ -214,5 +262,6 @@ export default function BeautyProductReviewCards() {
         </Box>
       </Modal>
     </Grid2>
+    </div>
   );
 }

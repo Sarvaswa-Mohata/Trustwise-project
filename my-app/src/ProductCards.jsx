@@ -134,7 +134,7 @@ const ProductGrid = () => {
       {/* Iterate over products and display a Card for each */}
       {products.map((product, index) => (
         <Grid2 item key={index} xs={12} sm={6} md={4}>
-          <Card sx={{ maxWidth: 345, borderRadius: "8px", backgroundColor: "#EFDBD4" }}>
+          <Card sx={{ minWidth:345, maxWidth: 345, borderRadius: "8px", backgroundColor: "#EFDBD4" }}>
             {/* Enlarged image */}
             <CardMedia
               component="img"

@@ -7,11 +7,10 @@ export const ReviewProvider = ({ children }) => {
   const [reviews, setReviews] = useState([]);
   const [predictionValue, setPredictionValue] = useState({}); // Store prediction values for each product
   const [isReviewSubmitted, setIsReviewSubmitted] = useState(false); // Track review submission status
-  const [buyClicked, setBuyClicked] = useState({}); // Track buy button clicks
-  // const [buyClicked, setBuyClicked] = useState(() => {
-  //   const savedState = localStorage.getItem("buyClicked");
-  //   return savedState ? JSON.parse(savedState) : {}; // Load saved state or use default
-  // });
+  const [buyClicked, setBuyClicked] = useState(() => {
+    const savedState = localStorage.getItem("buyClicked");
+    return savedState ? JSON.parse(savedState) : {}; // Load saved state or use default
+  });
 
   return (
     <ReviewContext.Provider
