@@ -1,10 +1,25 @@
 import React from "react";
 import { Container, Grid2, Typography, Card, CardContent, Button, TextField, Rating} from "@mui/material";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import ProductGrid from "./ProductCards";
-import './NashvilleLandingPage.css'
 
 export default function NashvilleLandingPage() {
+
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        setIsVisible(true); // Show navbar when scrolled down
+      } else {
+        setIsVisible(false); // Hide navbar when at the top
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div style={{ backgroundColor: "#f9f4f1", color: "#774c3d" }}>
@@ -16,6 +31,13 @@ export default function NashvilleLandingPage() {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          position: isVisible ? "fixed" : "absolute", // Dynamically change position
+          top: isVisible ? "0" : "-100px", // Move out of view when hidden
+          left: "0",
+          right: "0",
+          zIndex: 1000,
+          transition: "top 0.3s ease", // Smooth transition effect
+          boxShadow: isVisible ? "0px 4px 8px rgba(0,0,0,0.2)" : "none", // Add shadow when visible
         }}
       >
         <Typography
@@ -84,7 +106,7 @@ export default function NashvilleLandingPage() {
           backgroundRepeat: "no-repeat", // Prevent the image from repeating
           backgroundPosition: "right center", // Shift image to the right side
           height: "600px",
-          width: "100%", // Set the width of the section
+          width: "96%", // Set the width of the section
           color: "#fff", // Text color for contrast against the background
           position: "relative", // To allow the overlaying of content on top of the image
         }}
@@ -122,10 +144,6 @@ export default function NashvilleLandingPage() {
               Every product in our line is crafted to not only enhance the health of your skin but also to provide a luxurious experience. From deeply moisturizing creams to age-defying serums, each product has been tested for effectiveness, ensuring that your skin feels as smooth, hydrated, and revitalized as possible. Embrace a skincare routine that’s rooted in nature, and let your skin radiate with the beauty it deserves.
             </Typography>
           </Grid2>
-
-
-          {/* Optional empty Grid2 to adjust layout */}
-          <Grid2 item xs={12} md={6} />
         </Grid2>
       </section>
 
