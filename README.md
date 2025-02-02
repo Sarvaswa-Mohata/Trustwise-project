@@ -80,11 +80,11 @@ npm install
   ```
 - gibberish prediction of text:
   ```bash
-  uvicorn app:app --host 0.0.0.0 --port 5003
+  uvicorn app:app 
   ```
 - **emotion analysis of text**:
   ```bash
-  python serverForEmoAnalysis.py
+  node serverForEmoAnalysis.js
   ```
 
 ### 3. Run the Frontend
@@ -109,13 +109,6 @@ npm run dev
 
 - **POST** `/analyze`:
   Accepts review text and returns emotion analysis results.
-
-### FastAPI Server (uvicorn app\:app)
-
-- **GET** `/health`:
-  Health check endpoint for backend status.
-
----
 
 ## Testing
 
